@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   Search,
@@ -18,10 +19,6 @@ import {
   BarChart3,
   Lock,
   ChevronDown,
-  HelpCircle,
-  Users,
-  Globe2,
-  TrendingUp,
 } from "lucide-react";
 import { api } from "@/lib/api";
 
@@ -181,12 +178,18 @@ export default function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-4">
-            <a href="/login" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors px-3 py-2">
+            <Link
+              href="/signin/"
+              className="text-sm font-semibold text-slate-300 hover:text-white transition-colors px-3 py-2"
+            >
               Sign In
-            </a>
-            <a href="/register" className="gradient-button px-5 py-2.5 rounded-xl text-sm font-bold text-white shadow-lg shadow-purple-600/20">
+            </Link>
+            <Link
+              href="/signup/"
+              className="gradient-button px-5 py-2.5 rounded-xl text-sm font-bold text-white shadow-lg shadow-purple-600/20"
+            >
               Get Started Free
-            </a>
+            </Link>
           </div>
         </div>
       </header>
@@ -367,8 +370,8 @@ export default function LandingPage() {
                   ))}
                 </ul>
               </div>
-              <a
-                href="/register"
+              <Link
+                href="/signup/"
                 className={`w-full py-3 rounded-xl font-bold text-center text-xs transition ${
                   plan.highlighted
                     ? "gradient-button text-white shadow-lg shadow-purple-600/30"
@@ -376,7 +379,7 @@ export default function LandingPage() {
                 }`}
               >
                 {plan.cta}
-              </a>
+              </Link>
             </div>
           ))}
         </div>
