@@ -2,28 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #090d16;
-  --foreground: #f8fafc;
+@layer base {
+  :root {
+    --background: 9 13 22;
+    --foreground: 248 250 252;
+  }
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: rgb(var(--foreground));
+  background-color: #090d16;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   overflow-x: hidden;
 }
 
 .glass-card {
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(12px);
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .glass-nav {
-  background: rgba(9, 13, 22, 0.8);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(9, 13, 22, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .gradient-text {
@@ -34,10 +38,10 @@ body {
 
 .gradient-button {
   background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .gradient-button:hover {
-  opacity: 0.9;
-  box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+  opacity: 0.92;
+  box-shadow: 0 0 25px rgba(124, 58, 237, 0.45);
 }
