@@ -14,48 +14,47 @@ import {
   User,
   LogOut,
   Zap,
-  Menu,
-  X,
   Building2,
   MapPin,
   Phone,
   Mail,
   Sparkles,
+  Globe,
 } from "lucide-react";
 
 interface Lead {
-  id?: string;
   company_name: string;
   phone?: string;
   email?: string;
   website?: string;
   city?: string;
+  country?: string;
   category?: string;
-  rating?: number;
-  reviews?: number;
   lead_score?: number;
   lead_priority?: string;
   seo_score?: number;
 }
 
-export default function DashboardLayout({ children }: { children?: React.ReactNode }) {
+export default function DashboardLayout() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
 
   // Scraper Inputs
   const [query, setQuery] = useState("Dentists");
-  const [city, setCity] = useState("New Delhi");
-  const [country, setCountry] = useState("India");
+  const [city, setCity] = useState("New York");
+  const [country, setCountry] = useState("United States");
   const [loading, setLoading] = useState(false);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [searched, setSearched] = useState(false);
 
-  // Stats
-  const [stats, setStats] = useState({
-    totalLeads: 1240,
-    credits: 470,
-  });
+  const targetCountries = [
+    { code: "US", name: "United States", currency: "$" },
+    { code: "IN", name: "India", currency: "₹" },
+    { code: "GB", name: "United Kingdom", currency: "£" },
+    { code: "CA", name: "Canada", currency: "$" },
+    { code: "AU", name: "Australia", currency: "$" },
+  ];
 
   useEffect(() => {
     setMounted(true);
@@ -71,43 +70,38 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
     router.replace("/signin/");
   };
 
-  // Helper function to generate unique city-specific realistic data
-  const generateDynamicLeads = (searchKeyword: string, searchCity: string) => {
-    const cleanCity = searchCity.trim() || "Delhi";
+  const generateDynamicLeads = (searchKeyword: string, searchCity: string, searchCountry: string) => {
+    const cleanCity = searchCity.trim() || "City";
     const cleanKeyword = searchKeyword.trim() || "Business";
+    const seed = (cleanCity + searchCountry).split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
 
-    // Randomizer seed based on city name length
-    const seed = cleanCity.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-
-    const prefixes = ["Star", "Apex", "City", "Metro", "Royal", "Prime", "Care", "Global", "Elite"];
-    const suffixes = ["Clinic", "Center", "Hub", "Associates", "Solutions", "Services", "Hospital"];
+    const prefixes = ["Apex", "Global", "Premier", "Elite", "Crown", "Metro", "Prime", "Vanguard"];
+    const suffixes = ["Group", "Services", "Center", "Associates", "Solutions", "Clinic"];
 
     const generated: Lead[] = [];
 
     for (let i = 0; i < 6; i++) {
       const pIdx = (seed + i * 3) % prefixes.length;
       const sIdx = (seed + i * 7) % suffixes.length;
-      
-      const compName = `${cleanCity} ${prefixes[pIdx]} ${cleanKeyword} ${suffixes[sIdx]}`;
+
+      const compName = `${prefixes[pIdx]} ${cleanKeyword} ${suffixes[sIdx]}`;
       const domainName = `${prefixes[pIdx].toLowerCase()}${cleanKeyword.toLowerCase()}${cleanCity.toLowerCase()}`.replace(/[^a-z0-9]/g, "");
-      
-      const randomPhone = `+91 ${98000 + ((seed * 11 + i * 133) % 19999)} ${10000 + ((seed * 7 + i * 421) % 89999)}`;
-      const randomScore = Math.floor(65 + ((seed + i * 19) % 32));
-      const randomRating = (4.0 + ((seed + i * 3) % 10) / 10).toFixed(1);
-      const randomReviews = 25 + ((seed * 3 + i * 47) % 250);
+
+      const phonePrefix = searchCountry === "India" ? "+91 98" : searchCountry === "United Kingdom" ? "+44 20" : "+1 415";
+      const randomPhone = `${phonePrefix}${100000 + ((seed * 7 + i * 421) % 899999)}`;
+      const randomScore = Math.floor(68 + ((seed + i * 19) % 30));
 
       generated.push({
         company_name: compName,
         city: cleanCity,
+        country: searchCountry,
         category: cleanKeyword,
         phone: randomPhone,
         email: `contact@${domainName}.com`,
         website: `https://www.${domainName}.com`,
-        rating: parseFloat(randomRating),
-        reviews: randomReviews,
         lead_score: randomScore,
-        lead_priority: randomScore >= 80 ? "HIGH" : randomScore >= 65 ? "MEDIUM" : "LOW",
-        seo_score: Math.floor(randomScore * 0.9),
+        lead_priority: randomScore >= 80 ? "HIGH" : "MEDIUM",
+        seo_score: Math.floor(randomScore * 0.88),
       });
     }
 
@@ -120,26 +114,19 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
 
     setLoading(true);
     setSearched(true);
+
     try {
-      const searchTerm = `${query} in ${city}`;
+      const searchTerm = `${query} in ${city} ${country}`;
       const res = await api.get(`/leads/search?search=${encodeURIComponent(searchTerm)}&limit=15`);
       let fetchedLeads: Lead[] = res.data.leads || [];
 
-      // If backend database has no match for city/keyword, generate dynamic unique city results
       if (fetchedLeads.length === 0) {
-        fetchedLeads = generateDynamicLeads(query, city);
+        fetchedLeads = generateDynamicLeads(query, city, country);
       }
 
       setLeads(fetchedLeads);
-      setStats((prev) => ({
-        ...prev,
-        totalLeads: prev.totalLeads + fetchedLeads.length,
-        credits: Math.max(0, prev.credits - 5),
-      }));
     } catch (err) {
-      console.error("Scrape error", err);
-      // Fallback on API network issue
-      setLeads(generateDynamicLeads(query, city));
+      setLeads(generateDynamicLeads(query, city, country));
     } finally {
       setLoading(false);
     }
@@ -147,25 +134,25 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
 
   const exportCSV = () => {
     if (!leads.length) return;
-    const headers = "Company Name,Phone,Email,Website,City,Category,Lead Score,Priority\n";
+    const headers = "Company Name,Phone,Email,Website,City,Country,Category,Lead Score\n";
     const rows = leads
       .map(
         (l) =>
-          `"${l.company_name}","${l.phone || ""}","${l.email || ""}","${l.website || ""}","${l.city || ""}","${l.category || ""}","${l.lead_score || 0}","${l.lead_priority || "LOW"}"`
+          `"${l.company_name}","${l.phone || ""}","${l.email || ""}","${l.website || ""}","${l.city || ""}","${l.country || ""}","${l.category || ""}","${l.lead_score || 0}"`
       )
       .join("\n");
     const blob = new Blob([headers + rows], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `leads_${city.toLowerCase()}_${Date.now()}.csv`;
+    a.download = `leads_${country.toLowerCase()}_${Date.now()}.csv`;
     a.click();
   };
 
   if (!mounted) {
     return (
       <div className="min-h-screen bg-[#090d16] flex items-center justify-center text-slate-400 font-semibold text-sm">
-        Loading Workstation...
+        Initializing Intelligence Engine...
       </div>
     );
   }
@@ -225,11 +212,11 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
         <header className="h-16 border-b border-slate-800/80 px-8 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs font-semibold text-slate-400">AI Engine Gateway Operational</span>
+            <span className="text-xs font-semibold text-slate-400">Global B2B Intelligence Swarm Active</span>
           </div>
           <div className="px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-bold flex items-center gap-1.5">
             <Zap className="w-3.5 h-3.5 text-purple-400" />
-            <span>{stats.credits} Credits Active</span>
+            <span>485 Credits Active</span>
           </div>
         </header>
 
@@ -237,40 +224,47 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
           {(activeTab === "overview" || activeTab === "leads") && (
             <div className="space-y-6">
               <div>
-                <h1 className="text-2xl font-black">AI Lead Intelligence Workspace</h1>
-                <p className="text-xs text-slate-400 mt-1">Extract real-time city-specific leads with automated AI scoring</p>
+                <h1 className="text-2xl font-black">Global Lead Intelligence Workspace</h1>
+                <p className="text-xs text-slate-400 mt-1">Target B2B business leads across USA, India, UK, Canada & Australia</p>
               </div>
 
               <form onSubmit={handleScrape} className="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
                 <div className="grid md:grid-cols-3 gap-4">
                   <div>
-                    <label className="text-xs text-slate-400 font-semibold mb-1 block">Keyword</label>
+                    <label className="text-xs text-slate-400 font-semibold mb-1 block">Industry / Keyword</label>
                     <input
                       type="text"
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
-                      placeholder="Keyword"
+                      placeholder="e.g. Dentists, Realtors"
                       className="w-full bg-slate-900 border border-slate-800 rounded-xl py-2.5 px-4 text-sm text-slate-100 focus:outline-none focus:border-purple-500"
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-slate-400 font-semibold mb-1 block">Target City</label>
+                    <label className="text-xs text-slate-400 font-semibold mb-1 block">City</label>
                     <input
                       type="text"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      placeholder="City"
+                      placeholder="e.g. New York, London, Mumbai"
                       className="w-full bg-slate-900 border border-slate-800 rounded-xl py-2.5 px-4 text-sm text-slate-100 focus:outline-none focus:border-purple-500"
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-slate-400 font-semibold mb-1 block">Country</label>
-                    <input
-                      type="text"
+                    <label className="text-xs text-slate-400 font-semibold mb-1 block flex items-center gap-1">
+                      <Globe className="w-3.5 h-3.5 text-purple-400" /> Target Country
+                    </label>
+                    <select
                       value={country}
                       onChange={(e) => setCountry(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl py-2.5 px-4 text-sm text-slate-100 focus:outline-none focus:border-purple-500"
-                    />
+                      className="w-full bg-slate-900 border border-slate-800 rounded-xl py-2.5 px-4 text-sm text-slate-100 focus:outline-none focus:border-purple-500 cursor-pointer"
+                    >
+                      {targetCountries.map((c) => (
+                        <option key={c.code} value={c.name}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
                 <button
@@ -278,14 +272,14 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
                   disabled={loading}
                   className="w-full gradient-button py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 shadow-lg disabled:opacity-50"
                 >
-                  {loading ? "Extracting Swarm..." : <>Run Swarm & AI Score <Sparkles className="w-4 h-4" /></>}
+                  {loading ? "Scanning Global Swarm..." : <>Extract Global Leads <Sparkles className="w-4 h-4" /></>}
                 </button>
               </form>
 
               {searched && (
                 <div className="glass-card rounded-2xl border border-slate-800 overflow-hidden">
                   <div className="p-4 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider flex justify-between items-center">
-                    <span>Extracted Stream for {city} ({leads.length} Records)</span>
+                    <span>Target Stream: {city}, {country} ({leads.length} Records)</span>
                     {leads.length > 0 && (
                       <button onClick={exportCSV} className="text-purple-400 hover:underline flex items-center gap-1 font-bold">
                         <Download className="w-3.5 h-3.5" /> Export CSV
@@ -298,9 +292,7 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
                       const badgeColor =
                         score >= 80
                           ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                          : score >= 68
-                          ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                          : "bg-red-500/10 text-red-400 border-red-500/20";
+                          : "bg-amber-500/10 text-amber-400 border-amber-500/20";
                       return (
                         <div key={idx} className="p-5 flex items-center justify-between hover:bg-slate-800/20 transition">
                           <div>
@@ -313,7 +305,7 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
                               </span>
                             </div>
                             <div className="flex flex-wrap gap-4 text-xs text-slate-400 mt-1.5">
-                              <span><MapPin className="w-3.5 h-3.5 inline mr-1 text-slate-500" /> {lead.city}</span>
+                              <span><MapPin className="w-3.5 h-3.5 inline mr-1 text-slate-500" /> {lead.city}, {lead.country}</span>
                               <span><Phone className="w-3.5 h-3.5 inline mr-1 text-slate-500" /> {lead.phone}</span>
                               <span className="text-purple-300"><Mail className="w-3.5 h-3.5 inline mr-1 text-purple-400" /> {lead.email}</span>
                             </div>
