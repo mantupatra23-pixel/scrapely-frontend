@@ -1,8 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useAuth } from "@/lib/auth-context";
 import {
   Search,
   LayoutDashboard,
@@ -17,16 +17,29 @@ import {
 } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const pathname = usePathname();
-  const { user, loading, logout } = useAuth();
+  const [authorized, setAuthorized] = useState(false);
 
-  if (loading) {
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      router.push("/signin/");
+    } else {
+      setAuthorized(true);
+    }
+  }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    router.push("/signin/");
+  };
+
+  if (!authorized) {
     return (
-      <div className="min-h-screen bg-[#090d16] text-slate-400 flex items-center justify-center">
-        <div className="flex items-center gap-3">
-          <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
-          <span>Authenticating Workspace...</span>
-        </div>
+      <div className="min-h-screen bg-[#090d16] text-slate-400 flex items-center justify-center text-sm font-semibold">
+        Loading Workstation...
       </div>
     );
   }
@@ -76,12 +89,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         <div>
-          <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 mb-4 text-xs">
-            <p className="text-slate-400 mb-1">Signed in as</p>
-            <p className="font-bold text-slate-200 truncate">{user?.email || "User"}</p>
-          </div>
           <button
-            onClick={logout}
+            onClick={handleLogout}
             className="w-full p-3 bg-slate-900 hover:bg-red-500/10 hover:text-red-400 text-slate-400 rounded-xl flex items-center gap-3 text-sm font-semibold transition border border-slate-800"
           >
             <LogOut className="w-4 h-4" /> Sign Out
@@ -99,7 +108,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="flex items-center gap-3 text-xs">
             <div className="px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-300 font-bold flex items-center gap-1.5">
               <Zap className="w-3.5 h-3.5" />
-              <span>{user?.credits ?? 500} Credits Remaining</span>
+              <span>500 Credits Remaining</span>
             </div>
           </div>
         </header>
