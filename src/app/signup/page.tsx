@@ -24,7 +24,7 @@ export default function SignUpPage() {
         email: email,
         password: password,
       });
-      router.push("/signin?registered=true");
+      router.push("/signin/");
     } catch (err: any) {
       setError(err.response?.data?.detail || "Registration failed. Try again.");
     } finally {
@@ -102,7 +102,7 @@ export default function SignUpPage() {
         </form>
 
         <p className="text-xs text-center text-slate-400 mt-6">
-          Already registered? <a href="/signin" className="text-purple-400 font-semibold hover:underline">Sign in</a>
+          Already registered? <a href="/signin/" className="text-purple-400 font-semibold hover:underline">Sign in</a>
         </p>
       </div>
     </div>

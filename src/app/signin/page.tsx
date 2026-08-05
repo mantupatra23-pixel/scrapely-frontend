@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
-import { Lock, Mail, ArrowRight, Sparkles } from "lucide-react";
+import { Lock, Mail, ArrowRight } from "lucide-react";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -21,7 +21,7 @@ export default function SignInPage() {
       const res = await api.post("/auth/login", { email, password });
       if (res.data.access_token) {
         localStorage.setItem("access_token", res.data.access_token);
-        router.push("/dashboard");
+        router.push("/dashboard/");
       }
     } catch (err: any) {
       setError(err.response?.data?.detail || "Invalid email or password.");
@@ -32,8 +32,6 @@ export default function SignInPage() {
 
   return (
     <div className="min-h-screen bg-[#090d16] text-slate-100 flex items-center justify-center p-6 relative">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 blur-[140px] rounded-full pointer-events-none" />
-
       <div className="w-full max-w-md glass-card p-8 rounded-3xl border border-slate-800 shadow-2xl relative z-10">
         <div className="text-center mb-8">
           <a href="/" className="inline-flex items-center gap-2 mb-4">
@@ -87,7 +85,7 @@ export default function SignInPage() {
         </form>
 
         <p className="text-xs text-center text-slate-400 mt-6">
-          Don't have an account? <a href="/signup" className="text-purple-400 font-semibold hover:underline">Sign up free</a>
+          Don't have an account? <a href="/signup/" className="text-purple-400 font-semibold hover:underline">Sign up free</a>
         </p>
       </div>
     </div>
