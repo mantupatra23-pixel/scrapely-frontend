@@ -4,45 +4,48 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
-  Search,
   LayoutDashboard,
+  Search,
   Download,
   Key,
   CreditCard,
   Settings,
   User,
   LogOut,
-  ShieldCheck,
   Zap,
+  Menu,
+  X,
 } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [authorized, setAuthorized] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const token = localStorage.getItem("access_token");
     if (!token) {
+      console.warn("[Auth Guard] Token missing, redirecting to signin...");
       router.push("/signin/");
-    } else {
-      setAuthorized(true);
     }
-  }, [router]);
+  }, [router, pathname]);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-[#090d16] flex items-center justify-center text-slate-400 font-semibold text-sm">
+        Initializing Workspace...
+      </div>
+    );
+  }
 
   const handleLogout = () => {
+    console.log("[Auth] User logged out explicitly");
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     router.push("/signin/");
   };
-
-  if (!authorized) {
-    return (
-      <div className="min-h-screen bg-[#090d16] text-slate-400 flex items-center justify-center text-sm font-semibold">
-        Loading Workstation...
-      </div>
-    );
-  }
 
   const navItems = [
     { label: "Overview", href: "/dashboard/", icon: LayoutDashboard },
@@ -55,15 +58,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   ];
 
   return (
-    <div className="min-h-screen bg-[#090d16] text-slate-100 flex">
-      {/* Sidebar Navigation */}
-      <aside className="w-64 glass-card border-r border-slate-800 p-6 flex flex-col justify-between hidden md:flex shrink-0">
+    <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col md:flex-row">
+      {/* Mobile Top Header */}
+      <div className="md:hidden flex items-center justify-between p-4 border-b border-slate-800 bg-[#090d16]">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg gradient-button flex items-center justify-center font-black text-white text-base">
+            S
+          </div>
+          <span className="text-lg font-black">Scrapely<span className="text-purple-400">.ai</span></span>
+        </Link>
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="p-2 text-slate-300 hover:text-white"
+        >
+          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
+      </div>
+
+      {/* Main Single Desktop Sidebar */}
+      <aside
+        className={`w-64 glass-card border-r border-slate-800 p-6 flex flex-col justify-between shrink-0 ${
+          mobileMenuOpen ? "block" : "hidden md:flex"
+        }`}
+      >
         <div>
-          <Link href="/" className="flex items-center gap-3 mb-10">
+          <Link href="/" className="hidden md:flex items-center gap-3 mb-10">
             <div className="w-9 h-9 rounded-xl gradient-button flex items-center justify-center font-black text-white text-lg">
               S
             </div>
-            <span className="text-xl font-black">Scrapely<span className="text-purple-400">.ai</span></span>
+            <span className="text-xl font-black">
+              Scrapely<span className="text-purple-400">.ai</span>
+            </span>
           </Link>
 
           <nav className="space-y-1 text-sm font-semibold">
@@ -74,6 +99,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
                   className={`p-3 rounded-xl flex items-center gap-3 transition ${
                     isActive
                       ? "bg-purple-600/20 text-purple-300 border border-purple-500/30"
@@ -88,7 +114,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </nav>
         </div>
 
-        <div>
+        <div className="mt-8 pt-6 border-t border-slate-800/80">
           <button
             onClick={handleLogout}
             className="w-full p-3 bg-slate-900 hover:bg-red-500/10 hover:text-red-400 text-slate-400 rounded-xl flex items-center gap-3 text-sm font-semibold transition border border-slate-800"
@@ -98,22 +124,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </aside>
 
-      {/* Dynamic Content */}
+      {/* Content Container */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 border-b border-slate-800/80 px-8 flex items-center justify-between">
+        <header className="h-16 border-b border-slate-800/80 px-6 md:px-8 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs font-semibold text-slate-400">API Gateway Operational</span>
+            <span className="text-xs font-semibold text-slate-400">
+              API Engine Gateway Operational
+            </span>
           </div>
-          <div className="flex items-center gap-3 text-xs">
-            <div className="px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-300 font-bold flex items-center gap-1.5">
-              <Zap className="w-3.5 h-3.5" />
-              <span>500 Credits Remaining</span>
-            </div>
+          <div className="px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-bold flex items-center gap-1.5">
+            <Zap className="w-3.5 h-3.5" />
+            <span>500 Credits Active</span>
           </div>
         </header>
 
-        <main className="p-8 flex-1 overflow-y-auto">{children}</main>
+        <main className="p-4 md:p-8 flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
   );
