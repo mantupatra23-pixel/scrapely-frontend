@@ -71,19 +71,19 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
   const [activeTab, setActiveTab] = useState("overview");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Scraper Input States
+  // Scraper Form Inputs
   const [query, setQuery] = useState("Dentists");
-  const [city, setCity] = useState("New York");
-  const [country, setCountry] = useState("United States");
+  const [city, setCity] = useState("Mumbai");
+  const [country, setCountry] = useState("India");
   const [loading, setLoading] = useState(false);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [searched, setSearched] = useState(false);
 
-  // Stats State
+  // Credits
   const [credits, setCredits] = useState(485);
 
-  // Modals State
+  // Modals
   const [activeAuditLead, setActiveAuditLead] = useState<Lead | null>(null);
   const [auditData, setAuditData] = useState<SeoAuditData | null>(null);
   const [loadingAudit, setLoadingAudit] = useState(false);
@@ -142,7 +142,6 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
     }
   };
 
-  // Trigger Technical SEO Audit
   const handleOpenAuditModal = async (lead: Lead) => {
     setActiveAuditLead(lead);
     setLoadingAudit(true);
@@ -154,10 +153,10 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
       setAuditData(res.data);
     } catch (err) {
       setAuditData({
-        seo_score: lead.seo_score || 78,
+        seo_score: lead.seo_score || 82,
         ssl_enabled: true,
         mobile_friendly: true,
-        page_speed: 84,
+        page_speed: 85,
         meta_title: `${lead.company_name} - Verified Business Profile`,
         meta_description: `Leading ${lead.category || "Service"} operating in ${lead.city || city}, ${country}.`,
         robots_found: true,
@@ -170,7 +169,6 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
     }
   };
 
-  // Trigger AI Cold Outreach Draft
   const handleOpenEmailModal = async (lead: Lead, tone: string = "Professional") => {
     setActiveEmailLead(lead);
     setEmailTone(tone);
@@ -212,7 +210,7 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
     const rows = leads
       .map(
         (l) =>
-          `"${l.company_name}","${l.phone || ""}","${l.email || ""}","${l.website || ""}","${l.address || l.city || ""}","${l.city || city}","${l.category || query}","${l.lead_score || 0}","${l.lead_priority || "LOW"}"`
+          `"${l.company_name}","${l.phone || ""}","${l.email || ""}","${l.website || ""}","${l.address || l.city || city}","${l.city || city}","${l.category || query}","${l.lead_score || 0}","${l.lead_priority || "LOW"}"`
       )
       .join("\n");
     const blob = new Blob([headers + rows], { type: "text/csv" });
@@ -243,7 +241,7 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
 
   return (
     <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col md:flex-row font-sans">
-      {/* Mobile Bar */}
+      {/* Mobile Top Header */}
       <div className="md:hidden flex items-center justify-between p-4 border-b border-slate-800 bg-[#090d16]">
         <Link href="/" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg gradient-button flex items-center justify-center font-black text-white text-base">
@@ -307,7 +305,7 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
         </button>
       </aside>
 
-      {/* Main Panel */}
+      {/* Main Workspace */}
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-16 border-b border-slate-800/80 px-8 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -328,7 +326,7 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
                 <p className="text-xs text-slate-400 mt-1">Extract real registered entities across USA, India, UK, Canada & Australia</p>
               </div>
 
-              {/* Input Form */}
+              {/* Scraper Form */}
               <form onSubmit={handleScrape} className="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
                 <div className="grid md:grid-cols-3 gap-4">
                   <div>
@@ -374,11 +372,11 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
                   disabled={loading}
                   className="w-full gradient-button py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 shadow-lg disabled:opacity-50"
                 >
-                  {loading ? "Scanning Global Live Registry..." : <>Extract Global Verified Leads <Sparkles className="w-4 h-4" /></>}
+                  {loading ? "Scanning Live Global Registry..." : <>Extract Global Verified Leads <Sparkles className="w-4 h-4" /></>}
                 </button>
               </form>
 
-              {/* Results View */}
+              {/* Scraped Results Stream */}
               {searched && (
                 <div className="glass-card rounded-2xl border border-slate-800 overflow-hidden">
                   <div className="p-4 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider flex justify-between items-center">
@@ -393,7 +391,7 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
                   {leads.length > 0 ? (
                     <div className="divide-y divide-slate-800/60">
                       {leads.map((lead, idx) => {
-                        const score = lead.lead_score || 80;
+                        const score = lead.lead_score || 82;
                         const badgeColor =
                           score >= 80
                             ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
@@ -410,7 +408,10 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
                                 </span>
                               </div>
                               <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400">
-                                <span><MapPin className="w-3.5 h-3.5 inline mr-1 text-slate-500" /> {lead.address || lead.city || city}</span>
+                                <span>
+                                  <MapPin className="w-3.5 h-3.5 inline mr-1 text-slate-500" /> 
+                                  {lead.address && !lead.address.includes("New York") ? lead.address : `${lead.city || city}, ${country}`}
+                                </span>
                                 <span><Phone className="w-3.5 h-3.5 inline mr-1 text-slate-500" /> {lead.phone || "Verified Listed"}</span>
                                 <span className="text-purple-300"><Mail className="w-3.5 h-3.5 inline mr-1 text-purple-400" /> {lead.email}</span>
                               </div>
@@ -459,7 +460,7 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
         </main>
       </div>
 
-      {/* MODAL 1: SEO AUDIT MODAL */}
+      {/* SEO AUDIT MODAL */}
       {activeAuditLead && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="glass-card bg-[#0d1322] border border-slate-800 rounded-3xl w-full max-w-xl p-6 space-y-6 shadow-2xl relative">
@@ -517,7 +518,7 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
         </div>
       )}
 
-      {/* MODAL 2: AI COLD EMAIL GENERATOR MODAL */}
+      {/* AI COLD EMAIL GENERATOR MODAL */}
       {activeEmailLead && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="glass-card bg-[#0d1322] border border-slate-800 rounded-3xl w-full max-w-xl p-6 space-y-5 shadow-2xl relative">
