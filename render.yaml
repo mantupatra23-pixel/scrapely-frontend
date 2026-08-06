@@ -1,0 +1,45 @@
+services:
+  # 1. Main FastAPI Web Application Service
+  - type: web
+    name: scrapely-backend
+    env: docker
+    plan: starter
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: scrapely-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: scrapely-redis
+          property: connectionString
+      - key: JWT_SECRET
+        generateFilter: true
+
+  # 2. Asynchronous Celery Worker Service
+  - type: worker
+    name: scrapely-worker
+    env: docker
+    plan: starter
+    dockerfilePath: Dockerfile
+    command: celery -A app.core.celery_app worker --loglevel=info
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: scrapely-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: scrapely-redis
+          property: connectionString
+
+databases:
+  - name: scrapely-postgres
+    databaseName: scrapely
+    user: scrapely_user
+    plan: starter
