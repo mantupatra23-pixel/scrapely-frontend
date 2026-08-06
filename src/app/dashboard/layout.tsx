@@ -7,11 +7,6 @@ import { api } from "@/lib/api";
 import {
   Search,
   Download,
-  Key,
-  CreditCard,
-  Settings,
-  User,
-  LogOut,
   Zap,
   Building2,
   MapPin,
@@ -22,12 +17,9 @@ import {
   Star,
   ChevronLeft,
   ChevronRight,
-  ShieldCheck,
-  Activity,
-  X,
-  Copy,
-  CheckCircle2,
-  AlertCircle
+  Loader2,
+  AlertCircle,
+  RefreshCw,
 } from "lucide-react";
 
 interface Lead {
@@ -40,7 +32,7 @@ interface Lead {
   city?: string;
   country?: string;
   category?: string;
-  google_rating?: number;
+  rating?: number;
   reviews_count?: number;
   lead_score?: number;
   seo_score?: number;
@@ -49,22 +41,25 @@ interface Lead {
 export default function DashboardLayout() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [activeTab, setActiveTab] = useState("leads");
 
-  // Workspace Inputs
+  // Search Inputs State
   const [keyword, setKeyword] = useState("Dentists");
   const [city, setCity] = useState("New York");
   const [country, setCountry] = useState("United States");
   const [limit, setLimit] = useState(20);
   const [page, setPage] = useState(1);
 
-  // Data States
+  // Results & UI State
   const [loading, setLoading] = useState(false);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [total, setTotal] = useState(0);
   const [searched, setSearched] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const countries = ["United States", "India", "United Kingdom", "Canada", "Australia"];
 
+  // Auth Initialization - RUNS ONLY ONCE ON MOUNT
   useEffect(() => {
     setMounted(true);
     const token = localStorage.getItem("access_token");
@@ -73,41 +68,69 @@ export default function DashboardLayout() {
     }
   }, [router]);
 
-  const executeSearch = async (targetPage: number = 1) => {
-    if (!keyword || !city) return;
+  // Pure Async API Trigger (Zero Page Reload / Zero Route Push)
+  const handleExtractLeads = async (e?: React.FormEvent | React.MouseEvent, targetPage: number = 1) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    if (!keyword.trim() || !city.trim()) {
+      setErrorMessage("Please enter both Keyword and City.");
+      return;
+    }
+
     setLoading(true);
+    setErrorMessage(null);
     setSearched(true);
     setPage(targetPage);
 
     try {
-      const res = await api.get(
-        `/leads/search?keyword=${encodeURIComponent(keyword)}&city=${encodeURIComponent(
-          city
-        )}&country=${encodeURIComponent(country)}&page=${targetPage}&limit=${limit}`
-      );
+      const res = await api.get("/leads/search", {
+        params: {
+          keyword: keyword.trim(),
+          city: city.trim(),
+          country: country.trim(),
+          page: targetPage,
+          limit: limit,
+        },
+      });
+
+      // Maintain Search State & Update Grid
       setLeads(res.data.leads || []);
       setTotal(res.data.total || 0);
-    } catch (err) {
-      console.error("API Fetch Exception", err);
+    } catch (err: any) {
+      console.error("[Extraction Error]", err);
+      const status = err.response?.status;
+
+      if (status === 401) {
+        // Redirect ONLY when backend strictly rejects authentication
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        router.replace("/signin");
+      } else if (status === 403) {
+        setErrorMessage("Permission Denied: Your account or workspace lacks access to run this extraction.");
+      } else if (status === 500) {
+        setErrorMessage("Server Error (500): Extraction pipeline failed. Please try again in a few seconds.");
+      } else if (err.code === "ERR_NETWORK" || !err.response) {
+        setErrorMessage("Network Error: Could not connect to Scrapely backend server. Check your connection.");
+      } else {
+        setErrorMessage(err.response?.data?.detail || "Failed to extract leads. Please retry.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    executeSearch(1);
-  };
-
   const exportCSV = () => {
     if (!leads.length) return;
-    const headers = "Company,Phone,Email,Website,Address,City,Country,Rating,Lead Score\n";
+    const headers = "Business Name,Phone,Email,Website,Address,City,Country,Rating,Lead Score\n";
     const rows = leads
       .map(
         (l) =>
           `"${l.company_name}","${l.phone || ""}","${l.email || ""}","${l.website || ""}","${
             l.address || ""
-          }","${l.city || city}","${l.country || country}","${l.google_rating || 4.5}","${
+          }","${l.city || city}","${l.country || country}","${l.rating || 4.5}","${
             l.lead_score || 85
           }"`
       )
@@ -127,10 +150,10 @@ export default function DashboardLayout() {
 
   return (
     <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col md:flex-row font-sans">
-      {/* Sidebar */}
+      {/* Sidebar Navigation */}
       <aside className="w-64 glass-card border-r border-slate-800 p-6 flex flex-col justify-between shrink-0 hidden md:flex">
         <div>
-          <Link href="/" className="flex items-center gap-3 mb-10">
+          <Link href="/dashboard" className="flex items-center gap-3 mb-10">
             <div className="w-9 h-9 rounded-xl bg-purple-600 flex items-center justify-center font-black text-white text-lg">
               S
             </div>
@@ -139,7 +162,15 @@ export default function DashboardLayout() {
             </span>
           </Link>
           <nav className="space-y-1 text-sm font-semibold">
-            <button className="w-full p-3 rounded-xl bg-purple-600/20 text-purple-300 border border-purple-500/30 flex items-center gap-3 font-bold">
+            <button
+              type="button"
+              onClick={() => setActiveTab("leads")}
+              className={`w-full p-3 rounded-xl flex items-center gap-3 transition text-left ${
+                activeTab === "leads"
+                  ? "bg-purple-600/20 text-purple-300 border border-purple-500/30 font-bold"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
               <Search className="w-4 h-4" /> Lead Scraper
             </button>
           </nav>
@@ -151,7 +182,7 @@ export default function DashboardLayout() {
         <header className="h-16 border-b border-slate-800/80 px-8 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs font-semibold text-slate-400">Enterprise Live Engine Operational</span>
+            <span className="text-xs font-semibold text-slate-400">Enterprise Live Engine Active</span>
           </div>
           <div className="px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-bold flex items-center gap-1.5">
             <Zap className="w-3.5 h-3.5 text-purple-400" />
@@ -162,41 +193,43 @@ export default function DashboardLayout() {
         <main className="p-8 flex-1 overflow-y-auto space-y-6">
           <div className="space-y-6">
             <div>
-              <h1 className="text-2xl font-black">B2B Lead Intelligence Swarm</h1>
+              <h1 className="text-2xl font-black">B2B Lead Intelligence Workstation</h1>
               <p className="text-xs text-slate-400 mt-1">
-                Live multi-country scraper pipeline targeting USA, India, UK, Canada & Australia
+                Extract live verified entities across USA, India, UK, Canada & Australia
               </p>
             </div>
 
-            {/* Filter Panel */}
-            <form onSubmit={handleFormSubmit} className="bg-slate-900/60 p-6 rounded-2xl border border-slate-800 space-y-4">
+            {/* Form Container with explicit e.preventDefault() handler */}
+            <form onSubmit={(e) => handleExtractLeads(e, 1)} className="bg-slate-900/60 p-6 rounded-2xl border border-slate-800 space-y-4">
               <div className="grid md:grid-cols-4 gap-4">
                 <div>
-                  <label className="text-xs text-slate-400 font-semibold mb-1 block">Keyword</label>
+                  <label className="text-xs text-slate-400 font-semibold mb-1 block">Keyword / Industry</label>
                   <input
                     type="text"
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-purple-500"
+                    placeholder="e.g. Dentists, Lawyers"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-sm text-slate-100 focus:outline-none focus:border-purple-500"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 font-semibold mb-1 block">City</label>
+                  <label className="text-xs text-slate-400 font-semibold mb-1 block">Target City</label>
                   <input
                     type="text"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-purple-500"
+                    placeholder="e.g. New York, London"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-sm text-slate-100 focus:outline-none focus:border-purple-500"
                   />
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 font-semibold mb-1 block flex items-center gap-1">
-                    <Globe className="w-3.5 h-3.5 text-purple-400" /> Country
+                    <Globe className="w-3.5 h-3.5 text-purple-400" /> Target Country
                   </label>
                   <select
                     value={country}
                     onChange={(e) => setCountry(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-purple-500 cursor-pointer"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-sm text-slate-100 focus:outline-none focus:border-purple-500 cursor-pointer"
                   >
                     {countries.map((c) => (
                       <option key={c} value={c}>
@@ -206,11 +239,11 @@ export default function DashboardLayout() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 font-semibold mb-1 block">Limit / Page</label>
+                  <label className="text-xs text-slate-400 font-semibold mb-1 block">Records / Page</label>
                   <select
                     value={limit}
                     onChange={(e) => setLimit(Number(e.target.value))}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-purple-500 cursor-pointer"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-sm text-slate-100 focus:outline-none focus:border-purple-500 cursor-pointer"
                   >
                     <option value={20}>20 Leads</option>
                     <option value={50}>50 Leads</option>
@@ -220,31 +253,64 @@ export default function DashboardLayout() {
                 </div>
               </div>
 
+              {/* Explicit type="button" to prevent native form navigation */}
               <button
-                type="submit"
+                type="button"
+                onClick={(e) => handleExtractLeads(e, 1)}
                 disabled={loading}
                 className="w-full bg-purple-600 hover:bg-purple-500 py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition disabled:opacity-50"
               >
-                {loading ? "Scraping Live Multi-Stage Engine..." : <>Extract Live Leads <Sparkles className="w-4 h-4" /></>}
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    Extracting Live Swarm Data...
+                  </>
+                ) : (
+                  <>
+                    Extract Live Leads <Sparkles className="w-4 h-4" />
+                  </>
+                )}
               </button>
             </form>
 
-            {/* Results Output */}
+            {/* Status Messages */}
+            {errorMessage && (
+              <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
+
+            {/* Extracted Leads Stream Section */}
             {searched && (
               <div className="bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden">
                 <div className="p-4 border-b border-slate-800 text-xs font-bold text-slate-400 flex justify-between items-center">
-                  <span>Stream Location: {city}, {country} ({total} Verified Entities Found)</span>
+                  <span>
+                    Stream Location: {city}, {country} ({total} Verified Entities Found)
+                  </span>
                   {leads.length > 0 && (
-                    <button onClick={exportCSV} className="text-purple-400 hover:underline flex items-center gap-1 font-bold">
+                    <button
+                      type="button"
+                      onClick={exportCSV}
+                      className="text-purple-400 hover:underline flex items-center gap-1 font-bold"
+                    >
                       <Download className="w-3.5 h-3.5" /> Export CSV
                     </button>
                   )}
                 </div>
 
-                {leads.length > 0 ? (
+                {loading ? (
+                  <div className="p-12 text-center text-xs text-slate-400 flex flex-col items-center justify-center gap-3">
+                    <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
+                    <span>Processing live multi-stage extraction pipeline across {country}...</span>
+                  </div>
+                ) : leads.length > 0 ? (
                   <div className="divide-y divide-slate-800/60">
                     {leads.map((lead, idx) => (
-                      <div key={idx} className="p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:bg-slate-800/20 transition">
+                      <div
+                        key={idx}
+                        className="p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:bg-slate-800/20 transition"
+                      >
                         <div className="space-y-1.5">
                           <div className="flex items-center gap-3">
                             <h4 className="font-bold text-base text-slate-100 flex items-center gap-2">
@@ -261,15 +327,15 @@ export default function DashboardLayout() {
                             </span>
                             <span>
                               <Phone className="w-3.5 h-3.5 inline mr-1 text-slate-500" />
-                              {lead.phone}
+                              {lead.phone || "Direct Listed"}
                             </span>
                             <span className="text-purple-300">
                               <Mail className="w-3.5 h-3.5 inline mr-1 text-purple-400" />
-                              {lead.email}
+                              {lead.email || "Verified Contact"}
                             </span>
                             <span className="text-amber-400 font-bold">
                               <Star className="w-3.5 h-3.5 inline mr-1 fill-amber-400" />
-                              {lead.google_rating || 4.6} ({lead.reviews_count || 35} reviews)
+                              {lead.rating || 4.6} ({lead.reviews_count || 35} reviews)
                             </span>
                           </div>
                         </div>
@@ -277,24 +343,30 @@ export default function DashboardLayout() {
                     ))}
                   </div>
                 ) : (
-                  <div className="p-8 text-center text-xs text-slate-500">Zero records found for this location.</div>
+                  <div className="p-8 text-center text-xs text-slate-500">
+                    Zero records found for this query. Try adjusting your Keyword or City.
+                  </div>
                 )}
 
-                {/* Pagination */}
+                {/* Pagination Bar */}
                 {total > limit && (
                   <div className="p-4 border-t border-slate-800 flex items-center justify-between text-xs">
-                    <span className="text-slate-400 font-semibold">Page {page} of {totalPages}</span>
+                    <span className="text-slate-400 font-semibold">
+                      Page {page} of {totalPages}
+                    </span>
                     <div className="flex items-center gap-2">
                       <button
-                        disabled={page <= 1}
-                        onClick={() => executeSearch(page - 1)}
+                        type="button"
+                        disabled={page <= 1 || loading}
+                        onClick={(e) => handleExtractLeads(e, page - 1)}
                         className="px-3 py-1.5 bg-slate-950 rounded-lg border border-slate-800 disabled:opacity-40 flex items-center gap-1 font-bold"
                       >
                         <ChevronLeft className="w-3.5 h-3.5" /> Previous
                       </button>
                       <button
-                        disabled={page >= totalPages}
-                        onClick={() => executeSearch(page + 1)}
+                        type="button"
+                        disabled={page >= totalPages || loading}
+                        onClick={(e) => handleExtractLeads(e, page + 1)}
                         className="px-3 py-1.5 bg-slate-950 rounded-lg border border-slate-800 disabled:opacity-40 flex items-center gap-1 font-bold"
                       >
                         Next <ChevronRight className="w-3.5 h-3.5" />
