@@ -10,7 +10,6 @@ import {
   Phone,
   MapPin,
   Star,
-  ArrowRight,
   ShieldCheck,
   Zap,
   CheckCircle2,
@@ -174,16 +173,16 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#090d16] text-slate-100 font-sans selection:bg-purple-500 selection:text-white">
+    <div className="min-h-screen bg-[#0f172a] text-slate-100 font-sans selection:bg-purple-500 selection:text-white">
       {/* Navbar */}
-      <header className="glass-nav fixed top-0 left-0 right-0 z-50 border-b border-slate-800/80 bg-[#0b0c10]/80 backdrop-blur-md">
+      <header className="glass-nav fixed top-0 left-0 right-0 z-50 border-b border-slate-800/80 bg-[#0f172a]/90 backdrop-blur-md">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 h-16">
           <a href="#" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-purple-500/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 via-indigo-600 to-rose-500 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/30">
               S
             </div>
             <span className="text-xl font-black tracking-tight text-white">
-              Scrapely<span className="text-purple-400">.ai</span>
+              Scrapely<span className="text-cyan-400">.ai</span>
             </span>
           </a>
 
@@ -202,16 +201,16 @@ export default function LandingPage() {
             </a>
           </nav>
 
-          {/* UPDATED NAVIGATION BUTTONS */}
+          {/* DEDICATED AUTH LINKS */}
           <div className="flex items-center gap-4">
             <Link
-              href="/search"
+              href="/signin"
               className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
             >
               Sign In
             </Link>
             <Link
-              href="/search"
+              href="/signin"
               className="rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-purple-500/25 transition-all hover:from-purple-500 hover:to-indigo-500"
             >
               Get Started Free
@@ -223,14 +222,14 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="pt-36 pb-20 px-6 max-w-6xl mx-auto text-center relative">
         <motion.div initial={{ opacity: 0, y: 25 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold mb-6">
             <Sparkles className="w-4 h-4 text-purple-400" />
             <span>Autonomous AI B2B Scraping Engine v1.0</span>
           </div>
 
           <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-tight mb-6">
             Extract Verified B2B Leads <br />
-            <span className="bg-gradient-to-r from-purple-400 via-indigo-300 to-purple-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-cyan-400 via-indigo-300 to-rose-400 bg-clip-text text-transparent">
               On Autopilot In Seconds
             </span>
           </h1>
@@ -244,7 +243,7 @@ export default function LandingPage() {
         <div id="demo" className="max-w-3xl mx-auto mb-16">
           <form
             onSubmit={handleLiveScrape}
-            className="flex items-center gap-2 p-2 rounded-2xl bg-[#13151d] border border-slate-800 shadow-2xl focus-within:border-purple-500/50 transition-all"
+            className="flex items-center gap-2 p-2 rounded-2xl bg-[#1e293b] border border-slate-700 shadow-2xl focus-within:border-purple-500/50 transition-all"
           >
             <Search className="w-5 h-5 text-slate-400 ml-3" />
             <input
@@ -275,9 +274,9 @@ export default function LandingPage() {
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-6 p-4 rounded-2xl bg-[#13151d] border border-slate-800 text-left"
+              className="mt-6 p-4 rounded-2xl bg-[#1e293b] border border-slate-700 text-left"
             >
-              <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+              <div className="flex items-center justify-between mb-4 border-b border-slate-700 pb-3">
                 <span className="text-xs font-bold text-slate-300">Live Scraped Entities</span>
                 <span className="text-xs text-emerald-400 flex items-center gap-1 font-medium">
                   <ShieldCheck className="w-4 h-4" /> Live Stream Active
@@ -302,14 +301,14 @@ export default function LandingPage() {
                           {lead.rating && <span className="text-amber-400"><Star className="w-3 h-3 inline fill-amber-400 mr-1" />{lead.rating}</span>}
                         </div>
                       </div>
-                      <span className="text-xs font-semibold text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-lg border border-purple-500/20">
+                      <span className="text-xs font-semibold text-purple-300 bg-purple-500/10 px-2.5 py-1 rounded-lg border border-purple-500/20">
                         {lead.category || "Business"}
                       </span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="py-8 text-center text-xs text-slate-500">
+                <div className="py-8 text-center text-xs text-slate-400">
                   No cached leads found for this search. Click Extract to trigger live engines.
                 </div>
               )}
@@ -318,13 +317,13 @@ export default function LandingPage() {
         </div>
 
         {/* Animated Statistics Banner */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-6 rounded-2xl bg-[#13151d] border border-slate-800/80 max-w-4xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-6 rounded-2xl bg-[#1e293b] border border-slate-700 max-w-4xl mx-auto">
           <div>
             <h3 className="text-3xl font-black text-white">10M+</h3>
             <p className="text-xs text-slate-400 mt-1">Leads Extracted</p>
           </div>
           <div>
-            <h3 className="text-3xl font-black text-purple-400">99.4%</h3>
+            <h3 className="text-3xl font-black text-cyan-400">99.4%</h3>
             <p className="text-xs text-slate-400 mt-1">Data Accuracy</p>
           </div>
           <div>
@@ -342,7 +341,7 @@ export default function LandingPage() {
       <section id="features" className="py-24 px-6 max-w-6xl mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">
-            Everything You Need To <span className="text-purple-400">Scale Lead Gen</span>
+            Everything You Need To <span className="text-cyan-400">Scale Lead Gen</span>
           </h2>
           <p className="text-slate-400 text-sm md:text-base">
             Engineered for high-frequency data extraction without technical complexities.
@@ -354,7 +353,7 @@ export default function LandingPage() {
             <motion.div
               key={index}
               whileHover={{ y: -5 }}
-              className="p-8 rounded-2xl bg-[#13151d] border border-slate-800/80 hover:border-purple-500/40 transition-all shadow-xl"
+              className="p-8 rounded-2xl bg-[#1e293b] border border-slate-700 hover:border-purple-500/40 transition-all shadow-xl"
             >
               <div className="p-3 bg-slate-900 rounded-xl w-fit mb-5 border border-slate-800">
                 {item.icon}
@@ -381,10 +380,10 @@ export default function LandingPage() {
           {pricingPlans.map((plan, index) => (
             <div
               key={index}
-              className={`p-8 rounded-3xl bg-[#13151d] border relative flex flex-col justify-between ${
+              className={`p-8 rounded-3xl bg-[#1e293b] border relative flex flex-col justify-between ${
                 plan.highlighted
                   ? "border-purple-500 shadow-2xl shadow-purple-950/40"
-                  : "border-slate-800"
+                  : "border-slate-700"
               }`}
             >
               {plan.highlighted && (
@@ -402,14 +401,14 @@ export default function LandingPage() {
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((feat, fIdx) => (
                     <li key={fIdx} className="text-xs text-slate-300 flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-cyan-400 flex-shrink-0" />
                       <span>{feat}</span>
                     </li>
                   ))}
                 </ul>
               </div>
               <Link
-                href="/search"
+                href="/signin"
                 className={`w-full py-3 rounded-xl font-semibold text-xs text-center transition-all ${
                   plan.highlighted
                     ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/25 hover:from-purple-500 hover:to-indigo-500"
@@ -427,27 +426,27 @@ export default function LandingPage() {
       <section id="faq" className="py-24 px-6 max-w-4xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">
-            Frequently Asked <span className="text-purple-400">Questions</span>
+            Frequently Asked <span className="text-cyan-400">Questions</span>
           </h2>
           <p className="text-slate-400 text-sm">Got questions? We've got answers.</p>
         </div>
 
         <div className="space-y-4">
           {faqs.map((faq, idx) => (
-            <div key={idx} className="bg-[#13151d] border border-slate-800 rounded-2xl overflow-hidden">
+            <div key={idx} className="bg-[#1e293b] border border-slate-700 rounded-2xl overflow-hidden">
               <button
                 onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                className="w-full p-6 text-left font-semibold text-sm text-white flex items-center justify-between hover:text-purple-400 transition-colors"
+                className="w-full p-6 text-left font-semibold text-sm text-white flex items-center justify-between hover:text-cyan-400 transition-colors"
               >
                 <span>{faq.q}</span>
                 <ChevronDown
                   className={`w-5 h-5 text-slate-400 transition-transform ${
-                    openFaq === idx ? "rotate-180 text-purple-400" : ""
+                    openFaq === idx ? "rotate-180 text-cyan-400" : ""
                   }`}
                 />
               </button>
               {openFaq === idx && (
-                <div className="px-6 pb-6 text-xs text-slate-400 leading-relaxed border-t border-slate-800/50 pt-4">
+                <div className="px-6 pb-6 text-xs text-slate-400 leading-relaxed border-t border-slate-700/50 pt-4">
                   {faq.a}
                 </div>
               )}
@@ -457,10 +456,10 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800/80 bg-[#0b0c10] py-12 px-6">
+      <footer className="border-t border-slate-700/80 bg-[#0f172a] py-12 px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center font-bold text-white text-xs">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cyan-500 via-indigo-600 to-rose-500 flex items-center justify-center font-bold text-white text-xs">
               S
             </div>
             <span className="font-bold text-slate-300 text-sm">
