@@ -4,60 +4,51 @@
 
 @layer base {
   :root {
-    --background: 14 17 23;
+    --background: 15 23 42;
     --foreground: 248 250 252;
   }
 }
 
 body {
-  color: #f1f5f9;
-  background-color: #0e1117;
+  color: #f8fafc;
+  background-color: #0f172a;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
 }
 
-/* Custom Eye-Friendly Vibrant Utilities */
 @layer utilities {
-  .glass-card {
-    background: linear-gradient(135deg, rgba(22, 27, 38, 0.8) 0%, rgba(15, 19, 28, 0.9) 100%);
+  .vibrant-card {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
   }
 
-  .glass-card:hover {
-    border-color: rgba(168, 85, 247, 0.4);
-    box-shadow: 0 12px 35px -8px rgba(124, 58, 237, 0.25);
+  .vibrant-card:hover {
+    border-color: rgba(168, 85, 247, 0.5);
+    box-shadow: 0 12px 30px -5px rgba(124, 58, 237, 0.3);
   }
 
-  .glass-nav {
-    background: rgba(14, 17, 23, 0.85);
+  .vibrant-nav {
+    background: rgba(15, 23, 42, 0.9);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  /* Multi-Color Vibrant Text Gradients */
-  .gradient-text-primary {
-    background: linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #38bdf8 100%);
+  .gradient-text-vibrant {
+    background: linear-gradient(135deg, #38bdf8 0%, #a855f7 50%, #f43f5e 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
-  .gradient-text-emerald {
-    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  /* Premium Glowing Multi-Color Buttons */
-  .gradient-button {
-    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #06b6d4 100%);
+  .gradient-btn-multi {
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #db2777 100%);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .gradient-button:hover {
+  .gradient-btn-multi:hover {
     opacity: 0.95;
     box-shadow: 0 0 25px rgba(124, 58, 237, 0.5);
     transform: translateY(-1px);
