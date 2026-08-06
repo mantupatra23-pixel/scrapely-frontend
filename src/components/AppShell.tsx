@@ -9,6 +9,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const pathname = usePathname() || "/";
 
+  // Pure Public Pages (Zero Sidebar)
   const isPublicRoute =
     pathname === "/" || pathname === "/signin" || pathname === "/signup";
 
@@ -20,6 +21,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // App Pages (With Sidebar & Header)
   return (
     <div className="flex h-full w-full overflow-hidden bg-[#0f172a]">
       <SidebarNavigation
