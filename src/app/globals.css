@@ -4,46 +4,62 @@
 
 @layer base {
   :root {
-    --background: 9 13 22;
+    --background: 14 17 23;
     --foreground: 248 250 252;
   }
 }
 
 body {
-  color: rgb(var(--foreground));
-  background-color: #090d16;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  color: #f1f5f9;
+  background-color: #0e1117;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
 }
 
+/* Custom Eye-Friendly Vibrant Utilities */
 @layer utilities {
   .glass-card {
-    background: rgba(15, 23, 42, 0.7);
+    background: linear-gradient(135deg, rgba(22, 27, 38, 0.8) 0%, rgba(15, 19, 28, 0.9) 100%);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  }
+
+  .glass-card:hover {
+    border-color: rgba(168, 85, 247, 0.4);
+    box-shadow: 0 12px 35px -8px rgba(124, 58, 237, 0.25);
   }
 
   .glass-nav {
-    background: rgba(9, 13, 22, 0.85);
+    background: rgba(14, 17, 23, 0.85);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 
-  .gradient-text {
-    background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+  /* Multi-Color Vibrant Text Gradients */
+  .gradient-text-primary {
+    background: linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #38bdf8 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
+  .gradient-text-emerald {
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Premium Glowing Multi-Color Buttons */
   .gradient-button {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #06b6d4 100%);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .gradient-button:hover {
-    opacity: 0.92;
-    box-shadow: 0 0 25px rgba(124, 58, 237, 0.45);
+    opacity: 0.95;
+    box-shadow: 0 0 25px rgba(124, 58, 237, 0.5);
+    transform: translateY(-1px);
   }
 }
