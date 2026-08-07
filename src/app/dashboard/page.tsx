@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { api } from "@/lib/api";
 import {
   Building2,
   MapPin,
@@ -19,13 +18,10 @@ import {
 
 interface Lead {
   id: string;
-  google_place_id?: string;
   company_name: string;
   website?: string;
   phone?: string;
   verified_email?: string;
-  email_status?: string;
-  address?: string;
   city?: string;
   country?: string;
   google_rating?: number;
@@ -60,19 +56,19 @@ export default function DashboardPage() {
     setSearched(true);
 
     try {
-      const res = await api.get("/leads/search", {
-        params: {
-          keyword: keyword.trim(),
-          city: city.trim(),
-          country: country.trim(),
-          page: 1,
-          limit: limit,
-        },
-      });
+      const url = `https://scrapely-backend.onrender.com/api/v1/leads/search?keyword=${encodeURIComponent(
+        keyword.trim()
+      )}&city=${encodeURIComponent(city.trim())}&country=${encodeURIComponent(
+        country.trim()
+      )}&page=1&limit=${limit}`;
 
-      setLeads(res?.data?.leads || []);
-      setTotal(res?.data?.total || (res?.data?.leads ? res.data.leads.length : 0));
+      const res = await fetch(url);
+      const data = await res.json();
+
+      setLeads(data?.leads || []);
+      setTotal(data?.total || (data?.leads ? data.leads.length : 0));
     } catch (err) {
+      console.error(err);
       setLeads([]);
       setTotal(0);
     } finally {
@@ -82,30 +78,38 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Top Banner Stats */}
+      {/* Metrics Banner */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="p-6 rounded-2xl bg-[#1e293b] border border-slate-700 shadow-lg">
+        <div className="p-6 rounded-2xl bg-[#1e293b] border border-slate-700/80 shadow-lg">
           <Zap className="text-purple-400 mb-2" size={24} />
-          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Total Scraped Leads</h3>
-          <p className="text-2xl font-black text-white mt-1">{total > 0 ? total : "12,480"}</p>
+          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+            Total Scraped Leads
+          </h3>
+          <p className="text-2xl font-black text-white mt-1">
+            {total > 0 ? total : "12,480"}
+          </p>
         </div>
 
-        <div className="p-6 rounded-2xl bg-[#1e293b] border border-slate-700 shadow-lg">
+        <div className="p-6 rounded-2xl bg-[#1e293b] border border-slate-700/80 shadow-lg">
           <Search className="text-cyan-400 mb-2" size={24} />
-          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Scraping Engine Status</h3>
+          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+            Scraping Engine Status
+          </h3>
           <p className="text-2xl font-black text-cyan-400 mt-1">99.9% Active</p>
         </div>
 
-        <div className="p-6 rounded-2xl bg-[#1e293b] border border-slate-700 shadow-lg">
+        <div className="p-6 rounded-2xl bg-[#1e293b] border border-slate-700/80 shadow-lg">
           <ShieldCheck className="text-emerald-400 mb-2" size={24} />
-          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Email Deliverability</h3>
+          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+            Email Deliverability
+          </h3>
           <p className="text-2xl font-black text-emerald-400 mt-1">98.4% Verified</p>
         </div>
       </div>
 
-      {/* Main Workstation Form */}
-      <div className="p-6 rounded-2xl bg-[#1e293b] border border-slate-700 shadow-xl">
-        <div className="border-b border-slate-700 pb-4 mb-6">
+      {/* Main Form Workstation */}
+      <div className="p-6 rounded-2xl bg-[#1e293b] border border-slate-700/80 shadow-xl">
+        <div className="border-b border-slate-700/80 pb-4 mb-6">
           <h1 className="text-xl font-bold text-white">
             B2B Lead Intelligence Workstation
           </h1>
@@ -125,7 +129,7 @@ export default function DashboardPage() {
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               placeholder="e.g. Dentists"
-              className="w-full rounded-xl bg-[#0f172a] border border-slate-700 p-2.5 text-xs text-white placeholder-slate-500 focus:border-purple-500 focus:outline-none"
+              className="w-full rounded-xl bg-[#0f172a] border border-slate-700 p-2.5 text-xs text-white focus:border-purple-500 focus:outline-none"
             />
           </div>
 
@@ -139,7 +143,7 @@ export default function DashboardPage() {
               value={city}
               onChange={(e) => setCity(e.target.value)}
               placeholder="e.g. New Delhi"
-              className="w-full rounded-xl bg-[#0f172a] border border-slate-700 p-2.5 text-xs text-white placeholder-slate-500 focus:border-purple-500 focus:outline-none"
+              className="w-full rounded-xl bg-[#0f172a] border border-slate-700 p-2.5 text-xs text-white focus:border-purple-500 focus:outline-none"
             />
           </div>
 
@@ -197,11 +201,11 @@ export default function DashboardPage() {
         </form>
       </div>
 
-      {/* Results Live Table */}
-      <div className="rounded-2xl bg-[#1e293b] border border-slate-700 p-6 shadow-xl">
-        <div className="flex items-center justify-between border-b border-slate-700 pb-4 mb-4">
+      {/* Live Stream Table */}
+      <div className="rounded-2xl bg-[#1e293b] border border-slate-700/80 p-6 shadow-xl">
+        <div className="flex items-center justify-between border-b border-slate-700/80 pb-4 mb-4">
           <span className="text-xs font-bold text-slate-300">
-            Location: {city}, {country} ({total} Verified Entities Found)
+            Stream Location: {city}, {country} ({total} Verified Entities Found)
           </span>
           {leads.length > 0 && (
             <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-200 hover:bg-slate-700">
@@ -213,12 +217,12 @@ export default function DashboardPage() {
         {loading ? (
           <div className="p-12 text-center text-xs text-slate-400 flex flex-col items-center gap-2">
             <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
-            <span>Querying Live Google Places & Scrapely Aggregators...</span>
+            <span>Querying Live Google Places & Scrapely Engines...</span>
           </div>
         ) : leads.length > 0 ? (
           <div className="divide-y divide-slate-800">
             {leads.map((lead, idx) => (
-              <div key={lead.id || idx} className="py-4 flex items-center justify-between text-xs">
+              <div key={idx} className="py-4 flex items-center justify-between text-xs">
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
                     <h3 className="font-bold text-white text-sm flex items-center gap-2">
@@ -274,11 +278,11 @@ export default function DashboardPage() {
         ) : searched ? (
           <div className="p-12 text-center text-xs text-amber-400 flex flex-col items-center gap-2">
             <AlertCircle className="w-6 h-6 text-amber-400" />
-            <span>No verified businesses found. Try adjusting parameters.</span>
+            <span>No verified businesses found. Adjust your parameters.</span>
           </div>
         ) : (
           <div className="p-12 text-center text-xs text-slate-500">
-            Enter a search keyword and target city to begin extraction.
+            Enter a search term and city to execute live extraction.
           </div>
         )}
       </div>

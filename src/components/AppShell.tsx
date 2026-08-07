@@ -15,17 +15,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   if (!mounted) {
-    return (
-      <div className="min-h-screen w-full bg-[#0f172a] text-slate-100 flex items-center justify-center">
-        <div className="text-xs text-slate-400">Loading Workstation...</div>
-      </div>
-    );
+    return <div className="min-h-screen w-full bg-[#0f172a]" />;
   }
 
   const currentPath = pathname || "/";
   const isPublicRoute =
     currentPath === "/" || currentPath === "/signin" || currentPath === "/signup";
 
+  // Public Landing / Auth Pages (ZERO Sidebar, Full Screen)
   if (isPublicRoute) {
     return (
       <main className="w-full min-h-screen overflow-y-auto bg-[#0f172a]">
@@ -34,6 +31,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // Workstation App View (Single Sidebar + Single Header)
   return (
     <div className="flex h-screen w-full overflow-hidden bg-[#0f172a]">
       <SidebarNavigation
