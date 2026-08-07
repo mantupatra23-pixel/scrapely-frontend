@@ -1,290 +1,138 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import {
-  Building2,
-  MapPin,
-  Phone,
-  Mail,
-  Star,
-  Loader2,
-  AlertCircle,
-  Globe,
-  Search,
   Zap,
-  ShieldCheck,
-  Download,
+  Search,
+  CheckCircle2,
+  TrendingUp,
+  Activity,
+  Server,
+  Layers,
+  Globe2,
+  Building,
 } from "lucide-react";
 
-interface Lead {
-  id: string;
-  company_name: string;
-  website?: string;
-  phone?: string;
-  verified_email?: string;
-  city?: string;
-  country?: string;
-  google_rating?: number;
-  reviews_count?: number;
-  lead_score?: number;
-}
-
-const COUNTRIES = [
-  { name: "United States", flag: "🇺🇸" },
-  { name: "India", flag: "🇮🇳" },
-  { name: "United Kingdom", flag: "🇬🇧" },
-  { name: "Canada", flag: "🇨🇦" },
-  { name: "Australia", flag: "🇦🇺" },
-];
-
-export default function DashboardPage() {
-  const [keyword, setKeyword] = useState("Dentists");
-  const [city, setCity] = useState("New Delhi");
-  const [country, setCountry] = useState("India");
-  const [limit, setLimit] = useState(20);
-
-  const [loading, setLoading] = useState(false);
-  const [leads, setLeads] = useState<Lead[]>([]);
-  const [total, setTotal] = useState(0);
-  const [searched, setSearched] = useState(false);
-
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!keyword.trim() || !city.trim()) return;
-
-    setLoading(true);
-    setSearched(true);
-
-    try {
-      const url = `https://scrapely-backend.onrender.com/api/v1/leads/search?keyword=${encodeURIComponent(
-        keyword.trim()
-      )}&city=${encodeURIComponent(city.trim())}&country=${encodeURIComponent(
-        country.trim()
-      )}&page=1&limit=${limit}`;
-
-      const res = await fetch(url);
-      const data = await res.json();
-
-      setLeads(data?.leads || []);
-      setTotal(data?.total || (data?.leads ? data.leads.length : 0));
-    } catch (err) {
-      console.error(err);
-      setLeads([]);
-      setTotal(0);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+export default function WorkstationDashboard() {
   return (
-    <div className="space-y-6">
-      {/* Metrics Banner */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="p-6 rounded-2xl bg-[#1e293b] border border-slate-700/80 shadow-lg">
-          <Zap className="text-purple-400 mb-2" size={24} />
-          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-            Total Scraped Leads
-          </h3>
-          <p className="text-2xl font-black text-white mt-1">
-            {total > 0 ? total : "12,480"}
-          </p>
-        </div>
-
-        <div className="p-6 rounded-2xl bg-[#1e293b] border border-slate-700/80 shadow-lg">
-          <Search className="text-cyan-400 mb-2" size={24} />
-          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-            Scraping Engine Status
-          </h3>
-          <p className="text-2xl font-black text-cyan-400 mt-1">99.9% Active</p>
-        </div>
-
-        <div className="p-6 rounded-2xl bg-[#1e293b] border border-slate-700/80 shadow-lg">
-          <ShieldCheck className="text-emerald-400 mb-2" size={24} />
-          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-            Email Deliverability
-          </h3>
-          <p className="text-2xl font-black text-emerald-400 mt-1">98.4% Verified</p>
-        </div>
-      </div>
-
-      {/* Main Form Workstation */}
-      <div className="p-6 rounded-2xl bg-[#1e293b] border border-slate-700/80 shadow-xl">
-        <div className="border-b border-slate-700/80 pb-4 mb-6">
-          <h1 className="text-xl font-bold text-white">
-            B2B Lead Intelligence Workstation
+    <div className="space-y-8 w-full max-w-full">
+      {/* Top Banner Overview */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-6 rounded-2xl bg-gradient-to-r from-purple-900/40 via-indigo-900/30 to-slate-900 border border-purple-500/30 shadow-xl w-full">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-purple-500/10 px-3 py-1 text-xs font-semibold text-purple-300 border border-purple-500/20 mb-2">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Enterprise Scraper Swarm Active
+          </div>
+          <h1 className="text-2xl md:text-3xl font-black text-white">
+            Lead Intelligence Dashboard
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Extract live verified entities across USA, India, UK, Canada & Australia.
+          <p className="text-xs md:text-sm text-slate-400 mt-1">
+            Real-time scraping queue metrics, proxy health, and API usage tracking.
           </p>
         </div>
-
-        <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <div>
-            <label className="text-xs font-semibold text-slate-300 mb-2 block">
-              Keyword / Industry
-            </label>
-            <input
-              type="text"
-              required
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              placeholder="e.g. Dentists"
-              className="w-full rounded-xl bg-[#0f172a] border border-slate-700 p-2.5 text-xs text-white focus:border-purple-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-slate-300 mb-2 block">
-              Target City
-            </label>
-            <input
-              type="text"
-              required
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              placeholder="e.g. New Delhi"
-              className="w-full rounded-xl bg-[#0f172a] border border-slate-700 p-2.5 text-xs text-white focus:border-purple-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-slate-300 mb-2 block">
-              Target Country
-            </label>
-            <select
-              value={country}
-              onChange={(e) => setCountry(e.target.value)}
-              className="w-full rounded-xl bg-[#0f172a] border border-slate-700 p-2.5 text-xs text-white focus:border-purple-500 focus:outline-none"
-            >
-              {COUNTRIES.map((c) => (
-                <option key={c.name} value={c.name}>
-                  {c.flag} {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-slate-300 mb-2 block">
-              Records / Page
-            </label>
-            <select
-              value={limit}
-              onChange={(e) => setLimit(Number(e.target.value))}
-              className="w-full rounded-xl bg-[#0f172a] border border-slate-700 p-2.5 text-xs text-white focus:border-purple-500 focus:outline-none"
-            >
-              <option value={20}>20 Leads</option>
-              <option value={50}>50 Leads</option>
-              <option value={100}>100 Leads</option>
-            </select>
-          </div>
-
-          <div className="flex items-end">
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 py-2.5 text-xs font-bold text-white shadow-lg shadow-purple-500/25 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-50 transition-all"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Extracting...</span>
-                </>
-              ) : (
-                <>
-                  <Zap className="w-4 h-4 fill-white" />
-                  <span>Extract Live Leads</span>
-                </>
-              )}
-            </button>
-          </div>
-        </form>
       </div>
 
-      {/* Live Stream Table */}
-      <div className="rounded-2xl bg-[#1e293b] border border-slate-700/80 p-6 shadow-xl">
-        <div className="flex items-center justify-between border-b border-slate-700/80 pb-4 mb-4">
-          <span className="text-xs font-bold text-slate-300">
-            Stream Location: {city}, {country} ({total} Verified Entities Found)
-          </span>
-          {leads.length > 0 && (
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-200 hover:bg-slate-700">
-              <Download size={14} /> Export All CSV
-            </button>
-          )}
+      {/* Metric Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+        <div className="p-6 rounded-2xl bg-[#1e293b] border border-slate-800 shadow-xl">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-extrabold text-slate-400 uppercase">Credits Active</span>
+            <Zap className="text-purple-400" size={20} />
+          </div>
+          <div className="text-3xl font-black text-white">4,850 / 5,000</div>
+          <div className="mt-2 text-[11px] text-emerald-400 font-semibold">97% Remaining</div>
         </div>
 
-        {loading ? (
-          <div className="p-12 text-center text-xs text-slate-400 flex flex-col items-center gap-2">
-            <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
-            <span>Querying Live Google Places & Scrapely Engines...</span>
+        <div className="p-6 rounded-2xl bg-[#1e293b] border border-slate-800 shadow-xl">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-extrabold text-slate-400 uppercase">API Usage Today</span>
+            <Activity className="text-cyan-400" size={20} />
           </div>
-        ) : leads.length > 0 ? (
-          <div className="divide-y divide-slate-800">
-            {leads.map((lead, idx) => (
-              <div key={idx} className="py-4 flex items-center justify-between text-xs">
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-white text-sm flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-purple-400" />
-                      {lead.company_name}
-                    </h3>
-                    <span className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-300 border border-purple-500/20 text-[10px] font-extrabold">
-                      Score {lead.lead_score || 85}/100
-                    </span>
-                  </div>
+          <div className="text-3xl font-black text-white">1,240 Queries</div>
+          <div className="mt-2 text-[11px] text-slate-400 font-semibold">Average latency: 1.4s</div>
+        </div>
 
-                  <div className="flex flex-wrap items-center gap-4 text-slate-400">
-                    {lead.city && (
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5 text-slate-500" />
-                        {lead.city}, {lead.country || country}
-                      </span>
-                    )}
-                    {lead.phone && (
-                      <span className="flex items-center gap-1">
-                        <Phone className="w-3.5 h-3.5 text-slate-500" />
-                        {lead.phone}
-                      </span>
-                    )}
-                    {lead.verified_email && (
-                      <span className="flex items-center gap-1 text-emerald-400 font-semibold">
-                        <Mail className="w-3.5 h-3.5" />
-                        {lead.verified_email}
-                      </span>
-                    )}
-                    {lead.google_rating && (
-                      <span className="flex items-center gap-1 text-amber-400 font-bold">
-                        <Star className="w-3.5 h-3.5 fill-amber-400" />
-                        {lead.google_rating} ({lead.reviews_count || 12} reviews)
-                      </span>
-                    )}
-                  </div>
-                </div>
+        <div className="p-6 rounded-2xl bg-[#1e293b] border border-slate-800 shadow-xl">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-extrabold text-slate-400 uppercase">Today's Searches</span>
+            <Search className="text-indigo-400" size={20} />
+          </div>
+          <div className="text-3xl font-black text-white">48 Batches</div>
+          <div className="mt-2 text-[11px] text-purple-400 font-semibold">+12% vs Yesterday</div>
+        </div>
 
-                {lead.website && (
-                  <a
-                    href={lead.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white transition-all"
-                  >
-                    <Globe className="w-4 h-4" />
-                  </a>
-                )}
+        <div className="p-6 rounded-2xl bg-[#1e293b] border border-slate-800 shadow-xl">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-extrabold text-slate-400 uppercase">System Status</span>
+            <Server className="text-emerald-400" size={20} />
+          </div>
+          <div className="text-3xl font-black text-emerald-400">100% Operational</div>
+          <div className="mt-2 text-[11px] text-slate-400 font-semibold">12 Active Headless Workers</div>
+        </div>
+      </div>
+
+      {/* Analytics & System Panels */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+        {/* Top Demographics */}
+        <div className="p-6 rounded-2xl bg-[#1e293b] border border-slate-800 shadow-xl lg:col-span-2">
+          <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+            <Globe2 className="text-purple-400" size={18} />
+            Top Target Extraction Locations
+          </h3>
+          <div className="space-y-4">
+            <div>
+              <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+                <span>United States (Dentists, Legal, Real Estate)</span>
+                <span>45%</span>
               </div>
-            ))}
+              <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                <div className="h-full bg-purple-500 w-[45%]" />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+                <span>India (IT Services, Manufacturing, Healthcare)</span>
+                <span>32%</span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                <div className="h-full bg-cyan-400 w-[32%]" />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+                <span>United Kingdom (Fintech, Agencies)</span>
+                <span>18%</span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                <div className="h-full bg-indigo-500 w-[18%]" />
+              </div>
+            </div>
           </div>
-        ) : searched ? (
-          <div className="p-12 text-center text-xs text-amber-400 flex flex-col items-center gap-2">
-            <AlertCircle className="w-6 h-6 text-amber-400" />
-            <span>No verified businesses found. Adjust your parameters.</span>
+        </div>
+
+        {/* Worker & Queue Status */}
+        <div className="p-6 rounded-2xl bg-[#1e293b] border border-slate-800 shadow-xl">
+          <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+            <Layers className="text-cyan-400" size={18} />
+            Scraper Engine Workers
+          </h3>
+          <div className="space-y-3 text-xs">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+              <span className="font-semibold text-slate-300">Playwright Cluster #01</span>
+              <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">IDLE</span>
+            </div>
+            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+              <span className="font-semibold text-slate-300">Playwright Cluster #02</span>
+              <span className="px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 font-bold border border-purple-500/20">BUSY</span>
+            </div>
+            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+              <span className="font-semibold text-slate-300">Proxy Pool Rotation</span>
+              <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">HEALTHY</span>
+            </div>
           </div>
-        ) : (
-          <div className="p-12 text-center text-xs text-slate-500">
-            Enter a search term and city to execute live extraction.
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );

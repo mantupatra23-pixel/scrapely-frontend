@@ -38,7 +38,7 @@ export default function SidebarNavigation({
   collapsed,
   setCollapsed,
 }: SidebarProps) {
-  const pathname = usePathname() || "/";
+  const pathname = usePathname() || "/dashboard";
 
   const navigationGroups = [
     {
@@ -48,26 +48,26 @@ export default function SidebarNavigation({
         { name: "Lead Search", href: "/search", icon: Search, color: "text-sky-400" },
         { name: "Saved Leads", href: "/saved", icon: Bookmark, color: "text-amber-400" },
         { name: "Search History", href: "/history", icon: History, color: "text-cyan-400" },
-        { name: "Export Center", href: "/exports", icon: Download, color: "text-emerald-400" },
+        { name: "Export Center", href: "/export", icon: Download, color: "text-emerald-400" },
       ],
     },
     {
       group: "AUDIT & VERIFICATION",
       items: [
-        { name: "Email Verifier", href: "/verifier", icon: MailCheck, color: "text-emerald-400" },
-        { name: "SEO Audit", href: "/seo-audit", icon: SearchCheck, color: "text-rose-400" },
-        { name: "Website Analyzer", href: "/tech-analyzer", icon: Cpu, color: "text-indigo-400" },
+        { name: "Email Verifier", href: "/email", icon: MailCheck, color: "text-emerald-400" },
+        { name: "SEO Audit", href: "/seo", icon: SearchCheck, color: "text-rose-400" },
+        { name: "Website Analyzer", href: "/analyzer", icon: Cpu, color: "text-indigo-400" },
         { name: "Bulk Search", href: "/bulk", icon: Layers, color: "text-violet-400" },
       ],
     },
     {
       group: "DEVELOPER & SYSTEM",
       items: [
-        { name: "API Keys", href: "/api-keys", icon: Key, color: "text-amber-400" },
+        { name: "API Keys", href: "/api", icon: Key, color: "text-amber-400" },
         { name: "Integrations", href: "/integrations", icon: Network, color: "text-sky-400" },
         { name: "Billing & Plans", href: "/billing", icon: CreditCard, color: "text-emerald-400" },
         { name: "Invoices", href: "/invoices", icon: FileText, color: "text-slate-300" },
-        { name: "Credits & Usage", href: "/usage", icon: Zap, color: "text-purple-400" },
+        { name: "Credits & Usage", href: "/credits", icon: Zap, color: "text-purple-400" },
       ],
     },
     {
@@ -86,36 +86,34 @@ export default function SidebarNavigation({
 
   return (
     <aside
-      className={`relative flex flex-col border-r border-slate-700/60 bg-[#1e293b]/90 backdrop-blur-xl transition-all duration-300 ${
+      className={`relative flex flex-col border-r border-slate-800 bg-[#121620] transition-all duration-300 z-30 ${
         collapsed ? "w-20" : "w-64"
       }`}
     >
-      {/* Brand Header */}
-      <div className="flex h-16 items-center justify-between border-b border-slate-700/60 px-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 via-indigo-600 to-rose-500 font-bold text-white shadow-lg shadow-indigo-500/30">
+      <div className="flex h-16 items-center justify-between border-b border-slate-800 px-4">
+        <div className="flex items-center gap-3 overflow-hidden">
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 via-indigo-600 to-cyan-500 font-bold text-white shadow-lg shadow-purple-500/20">
             S
           </div>
           {!collapsed && (
-            <span className="text-lg font-black tracking-tight text-white">
-              Scrapely<span className="text-cyan-400">.ai</span>
+            <span className="text-lg font-black tracking-tight text-white whitespace-nowrap">
+              Scrapely<span className="text-purple-400">.ai</span>
             </span>
           )}
         </div>
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="rounded-lg p-1.5 text-slate-300 hover:bg-slate-700/60 hover:text-white"
+          className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
         >
           {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </button>
       </div>
 
-      {/* Navigation Group Items */}
-      <div className="flex-1 overflow-y-auto px-3 py-4">
+      <div className="flex-1 overflow-y-auto px-3 py-4 scrollbar-thin scrollbar-thumb-slate-800">
         {navigationGroups.map((group, idx) => (
           <div key={idx} className="mb-6">
             {!collapsed && (
-              <p className="mb-2 px-3 text-[10px] font-extrabold tracking-wider text-slate-400 uppercase">
+              <p className="mb-2 px-3 text-[10px] font-extrabold tracking-wider text-slate-500 uppercase">
                 {group.group}
               </p>
             )}
@@ -127,14 +125,14 @@ export default function SidebarNavigation({
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition-all ${
+                    className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold transition-all ${
                       isActive
-                        ? "bg-gradient-to-r from-purple-600/40 to-indigo-600/40 text-white border border-purple-400/50 shadow-lg shadow-purple-900/40"
-                        : "text-slate-300 hover:bg-slate-700/50 hover:text-white"
+                        ? "bg-purple-600/20 text-white border border-purple-500/40 shadow-md shadow-purple-950/30"
+                        : "text-slate-400 hover:bg-slate-800/60 hover:text-white"
                     }`}
                   >
-                    <ItemIcon size={18} className={isActive ? "text-cyan-300" : item.color} />
-                    {!collapsed && <span>{item.name}</span>}
+                    <ItemIcon size={18} className={isActive ? "text-purple-400" : item.color} />
+                    {!collapsed && <span className="whitespace-nowrap">{item.name}</span>}
                   </Link>
                 );
               })}

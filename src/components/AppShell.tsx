@@ -4,25 +4,25 @@ import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import SidebarNavigation from "@/components/SidebarNavigation";
 import WorkspaceHeader from "@/components/WorkspaceHeader";
+import { useApp } from "@/context/AppContext";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { sidebarCollapsed, setSidebarCollapsed } = useApp();
   const [mounted, setMounted] = useState(false);
-  const pathname = usePathname();
+  const pathname = usePathname() || "/";
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   if (!mounted) {
-    return <div className="min-h-screen w-full bg-[#0f172a]" />;
+    return <div className="min-h-screen bg-[#0f172a]" />;
   }
 
-  const currentPath = pathname || "/";
   const isPublicRoute =
-    currentPath === "/" || currentPath === "/signin" || currentPath === "/signup";
+    pathname === "/" || pathname === "/signin" || pathname === "/signup";
 
-  // Public Landing / Auth Pages (ZERO Sidebar, Full Screen)
+  // Public Layout (Full Width Landing / Auth Forms)
   if (isPublicRoute) {
     return (
       <main className="w-full min-h-screen overflow-y-auto bg-[#0f172a]">
@@ -31,16 +31,22 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Workstation App View (Single Sidebar + Single Header)
+  // Authenticated Workstation Layout (Fixed Sidebar + Top Navbar + Full-Width Content)
   return (
     <div className="flex h-screen w-full overflow-hidden bg-[#0f172a]">
+      {/* Fixed Left Sidebar */}
       <SidebarNavigation
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
       />
-      <div className="flex flex-1 flex-col overflow-hidden">
+
+      {/* Main Container */}
+      <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+        {/* Fixed Top Navbar */}
         <WorkspaceHeader />
-        <main className="flex-1 overflow-y-auto bg-[#0f172a] p-4 lg:p-6">
+
+        {/* Full-Width Workspace View Content */}
+        <main className="flex-1 overflow-y-auto bg-[#0f172a] p-4 lg:p-8 w-full">
           {children}
         </main>
       </div>
