@@ -8,18 +8,23 @@ import WorkspaceHeader from "@/components/WorkspaceHeader";
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const pathname = usePathname() || "/";
+  const pathname = usePathname();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const isPublicRoute =
-    pathname === "/" || pathname === "/signin" || pathname === "/signup";
-
   if (!mounted) {
-    return <div className="min-h-screen bg-[#0f172a]" />;
+    return (
+      <div className="min-h-screen w-full bg-[#0f172a] text-slate-100 flex items-center justify-center">
+        <div className="text-xs text-slate-400">Loading Workstation...</div>
+      </div>
+    );
   }
+
+  const currentPath = pathname || "/";
+  const isPublicRoute =
+    currentPath === "/" || currentPath === "/signin" || currentPath === "/signup";
 
   if (isPublicRoute) {
     return (
