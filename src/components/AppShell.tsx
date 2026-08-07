@@ -9,20 +9,26 @@ import { useApp } from "@/context/AppContext";
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { sidebarCollapsed, setSidebarCollapsed } = useApp();
   const [mounted, setMounted] = useState(false);
-  const pathname = usePathname() || "/";
+  const pathname = usePathname();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  const currentPath = pathname || "/";
+  const isPublicRoute =
+    currentPath === "/" || currentPath === "/signin" || currentPath === "/signup";
+
+  // SSR or Initial Render Fallback
   if (!mounted) {
-    return <div className="min-h-screen bg-[#0f172a]" />;
+    return (
+      <main className="w-full min-h-screen bg-[#0f172a] text-slate-100">
+        {children}
+      </main>
+    );
   }
 
-  const isPublicRoute =
-    pathname === "/" || pathname === "/signin" || pathname === "/signup";
-
-  // Public Layout (Full Width Landing / Auth Forms)
+  // Public Landing & Auth Layout
   if (isPublicRoute) {
     return (
       <main className="w-full min-h-screen overflow-y-auto bg-[#0f172a]">
@@ -31,21 +37,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Authenticated Workstation Layout (Fixed Sidebar + Top Navbar + Full-Width Content)
+  // Authenticated App Workstation Layout
   return (
     <div className="flex h-screen w-full overflow-hidden bg-[#0f172a]">
-      {/* Fixed Left Sidebar */}
       <SidebarNavigation
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
       />
-
-      {/* Main Container */}
       <div className="flex flex-1 flex-col overflow-hidden min-w-0">
-        {/* Fixed Top Navbar */}
         <WorkspaceHeader />
-
-        {/* Full-Width Workspace View Content */}
         <main className="flex-1 overflow-y-auto bg-[#0f172a] p-4 lg:p-8 w-full">
           {children}
         </main>
