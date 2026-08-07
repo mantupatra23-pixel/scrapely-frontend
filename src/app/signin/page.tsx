@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { api } from "@/lib/api";
 import { Lock, Mail, ArrowRight } from "lucide-react";
 
 export default function SignInPage() {
@@ -20,46 +19,66 @@ export default function SignInPage() {
 
     try {
       const safePassword = password.slice(0, 72);
-
-      const res = await api.post("/auth/login", {
-        email: email,
-        password: safePassword,
+      const res = await fetch("https://scrapely-backend.onrender.com/api/v1/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim(),
+          password: safePassword,
+        }),
       });
 
-      if (res.data.access_token) {
-        localStorage.setItem("access_token", res.data.access_token);
-        if (res.data.refresh_token) {
-          localStorage.setItem("refresh_token", res.data.refresh_token);
+      const data = await res.json();
+
+      if (!res.ok) {
+        let msg = "Invalid email or password.";
+        if (data.detail) {
+          if (typeof data.detail === "string") {
+            msg = data.detail;
+          } else if (Array.isArray(data.detail)) {
+            msg = data.detail[0]?.msg || msg;
+          }
         }
-        router.push("/dashboard/");
+        throw new Error(msg);
       }
+
+      // Save Auth Tokens in localStorage
+      if (data.access_token) {
+        localStorage.setItem("access_token", data.access_token);
+        localStorage.setItem("scrapely_token", data.access_token);
+      }
+      if (data.refresh_token) {
+        localStorage.setItem("refresh_token", data.refresh_token);
+      }
+
+      // Go directly to Dashboard Workstation
+      router.push("/dashboard");
     } catch (err: any) {
       console.error("Login error:", err);
-      const detail = err.response?.data?.detail;
-      setError(typeof detail === "string" ? detail : "Invalid email or password.");
+      setError(err.message || "Invalid email or password.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#090d16] text-slate-100 flex items-center justify-center p-6 relative selection:bg-purple-500 selection:text-white">
-      <div className="w-full max-w-md glass-card p-8 rounded-3xl border border-slate-800 shadow-2xl relative z-10">
+    <div className="min-h-screen bg-[#0f172a] text-slate-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-[#1e293b] border border-slate-700/80 rounded-3xl p-8 shadow-2xl backdrop-blur-xl">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-3 mb-4 group">
-            <div className="w-10 h-10 rounded-xl gradient-button flex items-center justify-center font-black text-white text-xl shadow-lg shadow-purple-600/30">
+          <Link href="/" className="inline-flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 via-indigo-600 to-rose-500 flex items-center justify-center font-bold text-white text-lg shadow-lg">
               S
             </div>
-            <span className="text-xl font-black text-white tracking-tight">
-              Scrapely<span className="text-purple-400">.ai</span>
+            <span className="text-xl font-black text-white">
+              Scrapely<span className="text-cyan-400">.ai</span>
             </span>
           </Link>
-          <h1 className="text-2xl font-black tracking-tight text-white">Welcome Back</h1>
+          <h1 className="text-2xl font-black text-white mt-6">Welcome Back</h1>
           <p className="text-xs text-slate-400 mt-1">Sign in to your scraper workstation</p>
         </div>
 
         {error && (
-          <div className="mb-6 p-3.5 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-xl text-center font-medium">
+          <div className="mb-6 p-3.5 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-xs text-center font-medium">
             {error}
           </div>
         )}
@@ -67,30 +86,30 @@ export default function SignInPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-xs font-semibold text-slate-300 block mb-1.5">Email Address</label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
+            <div className="relative flex items-center">
+              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5" />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@company.com"
-                className="w-full bg-slate-900/80 border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
+                placeholder="mantupatra25@gmail.com"
+                className="w-full bg-[#0f172a] border border-slate-700 rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
               />
             </div>
           </div>
 
           <div>
             <label className="text-xs font-semibold text-slate-300 block mb-1.5">Password</label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
+            <div className="relative flex items-center">
+              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5" />
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-slate-900/80 border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
+                className="w-full bg-[#0f172a] border border-slate-700 rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
               />
             </div>
           </div>
@@ -98,7 +117,7 @@ export default function SignInPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 rounded-xl font-bold text-sm text-white gradient-button flex items-center justify-center gap-2 shadow-lg shadow-purple-600/25 disabled:opacity-50 transition"
+            className="w-full py-3.5 rounded-xl font-semibold text-sm bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 disabled:opacity-50 transition-all"
           >
             {loading ? (
               <span>Signing In...</span>
@@ -112,8 +131,8 @@ export default function SignInPage() {
         </form>
 
         <p className="text-xs text-center text-slate-400 mt-6">
-          Don&apos;t have an account?{" "}
-          <Link href="/signup/" className="text-purple-400 font-semibold hover:underline">
+          Don't have an account?{" "}
+          <Link href="/signup" className="text-cyan-400 hover:underline font-semibold">
             Sign up free
           </Link>
         </p>
